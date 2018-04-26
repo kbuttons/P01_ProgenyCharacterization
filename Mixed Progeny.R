@@ -7,7 +7,7 @@ setwd("/Users/kbuttons/Documents/Research/P01/Data/Core C/")
 
 
 ### read in file 
-Cross_SNPs <- read.csv("Cross.HQ.filt.recal.vcf")
+Cross_SNPs <- read.vcfR("Cross.HQ.filt.recal.vcf")
 colnames(Cross_SNPs@gt)
 Cross_SNPs@gt[,c("Sample_ART-1","Sample_NF54_GFP_LUC")]
 
@@ -53,7 +53,7 @@ rownames(het_counts)[which(het_counts>700)]
 
 ### Sliding window size of average cross over to look for above average number of mutations
 ### From histogram, take 130 as our average heterozygous error rate for this 
-window_size = 20
+window_size = 30
 sliding_window_hetz <- matrix(0,nrow=dim(Parental_homozySNPs)[1]/window_size,ncol=length(colnames(Cross_SNPs@gt[,-1])))
 
 for(i in 1:dim(sliding_window_hetz)[1]){
