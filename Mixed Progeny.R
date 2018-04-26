@@ -48,7 +48,7 @@ for(j in 2:length(colnames(Cross_SNPs@gt))){
 rownames(het_counts) <- colnames(Cross_SNPs@gt[,-1])
 
 ### histogram of heterozygous call counts
-hist(het_counts,breaks=100)
+hist(het_counts,breaks=100,xlab="Number of heterozygous SNPs per progeny",ylab="Counts")
 rownames(het_counts)[which(het_counts>700)]
 
 ### Sliding window size of average cross over to look for above average number of mutations
@@ -65,7 +65,7 @@ for(i in 1:dim(sliding_window_hetz)[1]){
 colnames(sliding_window_hetz) <- colnames(Cross_SNPs@gt[,-1])
 
 hist(sliding_window_hetz,breaks=30)
-boxplot(sliding_window_hetz)
+boxplot(sliding_window_hetz,ylab="Number of SNPs in 30 SNP sliding window",xlab="Samples")
 
 
 ### Check which columns have the maximum heterozygous counts for a window above expected
