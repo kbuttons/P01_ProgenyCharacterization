@@ -39,6 +39,9 @@ colnames(SNPmatrix) <- c(colnames(Cross_SNPs@fix[,1:7]),colnames(Cross_SNPs@gt[,
 ### subset SNPs based on homozygosity of parents
 Parental_homozySNPs <- SNPmatrix[Parental_SNPs,]
 
+### Sort SNPs based on location
+Parental_homozySNPs <- Parental_homozySNPs[order(Parental_homozySNPs[,"CHROM"],as.numeric(Parental_homozySNPs[,"POS"])),]
+
 ### Count heterozygous calls in matrix
 het_counts <- matrix(0,nrow=length(colnames(Cross_SNPs@gt[,-1])),ncol=1)
 for(j in 2:length(colnames(Cross_SNPs@gt))){
@@ -55,6 +58,35 @@ rownames(het_counts)[which(het_counts>700)]
 ### From histogram, take 130 as our average heterozygous error rate for this 
 window_size = 30
 sliding_window_hetz <- matrix(0,nrow=dim(Parental_homozySNPs)[1]/window_size,ncol=length(colnames(Cross_SNPs@gt[,-1])))
+
+for(i in 1:dim(sliding_window_hetz)[1]){
+  for(j in 2:length(colnames(Cross_SNPs@gt))){
+    sliding_window_hetz[i,j-1] <- length(which(Parental_homozySNPs[(((i-1)*window_size)+1):(i*window_size),j+6]=="0/1"|Parental_homozySNPs[(((i-1)*window_size)+1):(i*window_size),j+6]=="1/0"))
+  }
+}
+
+colnames(sliding_window_hetz) <- colnames(Cross_SNPs@gt[,-1])
+
+hist(sliding_window_hetz,breaks=30)
+boxplot(sliding_window_hetz,ylab="Number of SNPs in 30 SNP sliding window",xlab="Samples")
+
+
+### Check which columns have the maximum heterozygous counts for a window above expected
+max_het <- rep(0,length(colnames(Cross_SNPs@gt[,-1])))
+for(i in 1:length(colnames(Cross_SNPs@gt[,-1]))){
+  max_het[i] <- max(sliding_window_hetz[,i])
+}
+
+colnames(sliding_window_hetz)[which(max_het>15)]
+
+### Sliding window size of average cross over based on BP location of SNP
+### From histogram, take 130 as our average heterozygous error rate for this 
+window_size <- 8*30000   ### from Su et al Science 1999, 15 
+tot_genome <- 23000000
+sliding_window_hetz <- matrix(0,nrow=(tot_genome/window_size),ncol=length(colnames(Cross_SNPs@gt[,-1])))
+
+### Find SNPs that most closely match window size
+chrom <- unique(Parental_homozySNPs[,"CHROM"])
 
 for(i in 1:dim(sliding_window_hetz)[1]){
   for(j in 2:length(colnames(Cross_SNPs@gt))){
